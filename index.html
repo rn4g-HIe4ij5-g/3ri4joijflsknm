@@ -9,88 +9,83 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="K-Chrono">
     
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff4081'/%3E%3Cpath d='M40 30l30 20-30 20V30z' fill='white'/%3E%3Cpath d='M30 70l10-5M70 30l-10 5' stroke='white' stroke-width='2' opacity='0.5'/%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff4081'/%3E%3Cpath d='M40 30l30 20-30 20V30z' fill='white'/%3E%3Cpath d='M30 70l10-5M70 30l-10 5' stroke='white' stroke-width='2' opacity='0.5'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff4081'/%3E%3Cpath d='M40 30l30 20-30 20V30z' fill='white'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff4081'/%3E%3Cpath d='M40 30l30 20-30 20V30z' fill='white'/%3E%3C/svg%3E">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root { --accent: #ff4081; --bg: #000000; --card: #121212; --text: #ffffff; --nav: #181818; }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg); color: var(--text); margin: 0; 
-            height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column;
+            height: 100vh; width: 100vw; display: flex; flex-direction: column; overflow: hidden;
         }
 
         header { padding: 45px 20px 15px; background: var(--bg); text-align: center; flex-shrink: 0; }
         header h1 { font-size: 1.1rem; margin: 0; font-weight: 900; letter-spacing: 2px; color: var(--accent); }
 
-        .app-content { flex: 1; position: relative; overflow: hidden; }
-        .view { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            display: none; flex-direction: column; padding: 15px; overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .view.active { display: flex; }
+        .app-content { flex: 1; display: flex; position: relative; overflow: hidden; }
 
+        /* VIEW LOGICA */
+        .view { 
+            flex: 1; display: flex; flex-direction: column; padding: 15px; 
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
+            border-right: 1px solid #222;
+        }
+
+        /* PLAYER STYLING */
         .video-wrapper { 
             width: 100%; aspect-ratio: 16/9; background: #000; 
             border-radius: 16px; overflow: hidden; position: relative;
-            box-shadow: 0 15px 35px rgba(255, 64, 129, 0.2);
+            box-shadow: 0 15px 35px rgba(255, 64, 129, 0.2); flex-shrink: 0;
         }
         #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-
-        .player-info { margin-top: 25px; text-align: center; }
-        #video-titel-veld { font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; min-height: 3.4rem; display: flex; align-items: center; justify-content: center; }
-
+        .player-info { margin-top: 20px; text-align: center; }
+        #video-titel-veld { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; min-height: 3rem; display: flex; align-items: center; justify-content: center; }
         .skip-btn { 
             background: linear-gradient(45deg, #ff4081, #ff80ab); color: white; border: none; 
-            padding: 18px; border-radius: 40px; font-weight: 800; font-size: 1rem; width: 100%;
-            text-transform: uppercase; letter-spacing: 1px;
+            padding: 15px; border-radius: 40px; font-weight: 800; width: 100%; cursor: pointer;
         }
 
-        .list-container { display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; }
+        /* CARDS */
+        .list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 40px; }
         .item-card { 
-            background: var(--card); padding: 10px; border-radius: 14px; 
-            display: flex; align-items: center; gap: 12px; border: 1px solid #222;
-            transition: transform 0.2s;
+            background: var(--card); padding: 10px; border-radius: 12px; 
+            display: flex; align-items: center; gap: 12px; border: 1px solid #222; cursor: pointer;
         }
-        .item-card:active { transform: scale(0.97); }
         .item-card.active { border-color: var(--accent); background: #1a0a10; }
-        .item-thumb { width: 85px; aspect-ratio: 16/9; border-radius: 8px; object-fit: cover; }
+        .item-thumb { width: 80px; aspect-ratio: 16/9; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
         .item-text { flex: 1; overflow: hidden; }
         .item-title { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-num { font-size: 0.7rem; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
 
-        nav { 
-            height: 85px; background: rgba(24, 24, 24, 0.95); backdrop-filter: blur(10px);
-            border-top: 1px solid #333; display: flex; justify-content: space-around; 
-            padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0;
-        }
-        .nav-btn { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #666; font-size: 0.65rem; gap: 6px; flex: 1;
-        }
+        /* NAVIGATIE (Mobiel) */
+        nav { display: none; height: 80px; background: var(--nav); border-top: 1px solid #333; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; font-size: 0.7rem; flex: 1; gap: 5px; }
         .nav-btn.active { color: var(--accent); }
-        .nav-icon { font-size: 1.5rem; }
+        .nav-icon { font-size: 1.4rem; }
 
-        .upload-floating {
-            background: #222; color: white; padding: 15px; border-radius: 12px; 
-            text-align: center; font-weight: bold; margin-bottom: 20px; border: 1px dashed var(--accent);
+        .upload-btn { background: #222; color: white; padding: 15px; border-radius: 12px; text-align: center; font-weight: bold; margin-bottom: 20px; border: 1px dashed var(--accent); cursor: pointer; display: block; }
+
+        #error-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+
+        /* --- MOBIEL SPECIFIEK --- */
+        @media (max-width: 900px) {
+            header { display: block; }
+            nav { display: flex; }
+            .view { display: none; border-right: none; }
+            .view.active { display: flex; }
+            .app-content { flex-direction: row; }
         }
 
-        #error-overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column; 
-            justify-content: center; align-items: center; text-align: center; z-index: 10;
-        }
-
-        @media (min-width: 900px) {
-            body { flex-direction: row; }
-            nav { width: 90px; height: 100vh; flex-direction: column; padding: 50px 0; border-top: none; border-right: 1px solid #333; }
-            .view { position: relative; display: flex !important; width: 33.33%; border-right: 1px solid #222; }
-            header { display: none; }
+        /* --- DESKTOP SPECIFIEK --- */
+        @media (min-width: 901px) {
+            header { padding: 20px; border-bottom: 1px solid #222; }
+            nav { display: none !important; }
+            .view { display: flex !important; } /* Toon alle drie op PC */
+            #view-lib { max-width: 300px; }
+            #view-list { max-width: 400px; }
         }
     </style>
 </head>
@@ -102,20 +97,17 @@
 
 <div class="app-content">
     <div id="view-lib" class="view active">
-        <label class="upload-floating"> + VOEG NIEUWE GROEP TOE <input type="file" id="csv-in" accept=".csv" style="display:none"></label>
+        <label class="upload-btn"> + NIEUWE GROEP <input type="file" id="csv-in" accept=".csv" style="display:none"></label>
         <div class="list-container" id="lib-lijst"></div>
     </div>
 
     <div id="view-player" class="view">
         <div class="video-wrapper">
             <div id="player"></div>
-            <div id="error-overlay">
-                <h3 style="color:var(--accent)">GEBLOKKEERD</h3>
-                <p style="font-size:0.8rem">Automatisch overslaan...</p>
-            </div>
+            <div id="error-overlay"><h3 style="color:var(--accent)">BLOKKADE</h3></div>
         </div>
         <div class="player-info">
-            <div id="video-titel-veld">Geen video geselecteerd</div>
+            <div id="video-titel-veld">Geen video</div>
             <button class="skip-btn" onclick="speelVideo(currentIndex + 1)">VOLGENDE VIDEO</button>
         </div>
     </div>
@@ -126,21 +118,16 @@
 </div>
 
 <nav id="bottom-nav">
-    <div class="nav-btn active" onclick="switchView('view-lib', this)">
-        <span class="nav-icon">🏠</span><span>Home</span>
-    </div>
-    <div class="nav-btn" onclick="switchView('view-player', this)">
-        <span class="nav-icon">▶️</span><span>Speler</span>
-    </div>
-    <div class="nav-btn" onclick="switchView('view-list', this)">
-        <span class="nav-icon">📖</span><span>Lijst</span>
-    </div>
+    <div class="nav-btn active" onclick="switchView('view-lib', this)"><span class="nav-icon">🏠</span><span>Home</span></div>
+    <div class="nav-btn" onclick="switchView('view-player', this)"><span class="nav-icon">▶️</span><span>Speler</span></div>
+    <div class="nav-btn" onclick="switchView('view-list', this)"><span class="nav-icon">📖</span><span>Lijst</span></div>
 </nav>
 
 <script>
     let player, playlist = [], currentIndex = -1, actieveGroep = "";
 
     function switchView(viewId, btn) {
+        if (window.innerWidth > 900) return; // Doe niks op PC
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -189,22 +176,30 @@
         Object.keys(l).forEach(n => {
             const card = document.createElement('div');
             card.className = `item-card ${n === actieveGroep ? 'active' : ''}`;
-            card.innerHTML = `<div class="item-text"><div class="item-title">${n.toUpperCase()}</div></div><span style="opacity:0.3" onclick="del(event,'${n}')">🗑</span>`;
+            card.innerHTML = `<div class="item-text"><div class="item-title">${n}</div></div><span style="padding:10px" onclick="del(event,'${n}')">🗑</span>`;
             card.onclick = () => toonGroep(n, l[n]);
             div.appendChild(card);
         });
     }
 
     function del(e, n) {
-        e.stopPropagation(); if(!confirm(`Verwijderen uit bibliotheek?`)) return;
+        e.stopPropagation(); if(!confirm(`Verwijderen?`)) return;
         let l = JSON.parse(localStorage.getItem('kpop_archive_final') || '{}');
         delete l[n]; localStorage.setItem('kpop_archive_final', JSON.stringify(l));
+        if(actieveGroep === n) resetScherm();
         laadLib();
+    }
+
+    function resetScherm() {
+        actieveGroep = ""; playlist = []; currentIndex = -1;
+        document.getElementById('v-lijst').innerHTML = "";
+        document.getElementById('video-titel-veld').innerText = "Geen video";
+        if(player && player.stopVideo) player.stopVideo(); // DIT STOPT DE AUDIO
     }
 
     function toonGroep(n, d) {
         actieveGroep = n; playlist = d; tekenLijst(); 
-        switchView('view-player', document.querySelectorAll('.nav-btn')[1]);
+        if (window.innerWidth <= 900) switchView('view-player', document.querySelectorAll('.nav-btn')[1]);
         let p = JSON.parse(localStorage.getItem('kpop_pro_progress') || '{}');
         let saved = p[n] || { index: 0, time: 0 };
         speelVideo(saved.index, saved.time);
@@ -216,7 +211,7 @@
             const id = extractId(v.Link);
             const card = document.createElement('div');
             card.className = `item-card ${i === currentIndex ? 'active' : ''}`;
-            card.innerHTML = `<img class="item-thumb" src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div class="item-text"><div class="item-num">EPISODE ${v.Nummer}</div><div class="item-title">${v.Titel}</div></div>`;
+            card.innerHTML = `<img class="item-thumb" src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div class="item-text"><div>#${v.Nummer}</div><div class="item-title">${v.Titel}</div></div>`;
             card.onclick = () => speelVideo(i);
             l.appendChild(card);
         });
