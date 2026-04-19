@@ -2,188 +2,158 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Pop Archive - Responsive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>K-Pop Archive</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ff4081">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root { --accent: #ff4081; --bg: #0b0b0b; --card: #181818; --text: #ffffff; --error: #ff4d4d; }
+        :root { --accent: #ff4081; --bg: #000000; --card: #121212; --text: #ffffff; --nav: #181818; }
+        
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            transition: cursor 0.3s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; 
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none;
         }
-        
-        body.hide-cursor { cursor: none !important; }
 
+        /* HEADER */
         header { 
-            padding: 12px 20px; 
-            background: #1a1a1a; 
-            border-bottom: 2px solid var(--accent); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-shrink: 0; 
+            padding: 40px 20px 10px; background: var(--bg); 
+            text-align: center; flex-shrink: 0;
         }
+        header h1 { font-size: 1.2rem; margin: 0; font-weight: 800; letter-spacing: 1px; color: var(--accent); }
 
-        .main-container { 
-            display: flex; 
-            flex: 1; 
-            overflow: hidden; 
-            flex-direction: row; /* Standaard opzij voor PC */
+        /* CONTENT AREA */
+        .app-content { flex: 1; position: relative; overflow: hidden; }
+        .view { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; flex-direction: column; padding: 15px; overflow-y: auto;
         }
-        
-        /* Zijbalken */
-        #sidebar, #playlist { 
-            background: #141414; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            flex-shrink: 0; 
-            overflow-y: auto; 
+        .view.active { display: flex; }
+
+        /* VIDEO PLAYER (Zit in de 'Player' view) */
+        .video-wrapper { 
+            width: 100%; aspect-ratio: 16/9; background: #000; 
+            border-radius: 12px; overflow: hidden; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        #sidebar { width: 240px; border-right: 1px solid #333; }
-        #playlist { width: 320px; border-left: 1px solid #333; }
-
-        /* Video Zone */
-        #video-zone { 
-            flex: 3; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            background: #0b0b0b; 
-            overflow-y: auto;
-        }
-
-        .video-box { 
-            width: 100%; 
-            aspect-ratio: 16/9; 
-            background: #000; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            position: relative; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); 
-        }
-
         #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        
+
+        .player-info { margin-top: 20px; text-align: center; }
+        #video-titel-veld { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; line-height: 1.4; }
+
+        .skip-btn { 
+            background: var(--accent); color: white; border: none; padding: 15px 40px; 
+            border-radius: 30px; font-weight: bold; font-size: 1rem; width: 100%;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.3);
+        }
+
+        /* LIJSTEN (Library & Playlist) */
+        .list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
+        .item-card { 
+            background: var(--card); padding: 12px; border-radius: 10px; 
+            display: flex; align-items: center; gap: 15px; border: 1px solid #222;
+        }
+        .item-card.active { border-color: var(--accent); background: #1a1014; }
+        .item-thumb { width: 70px; aspect-ratio: 16/9; border-radius: 6px; object-fit: cover; }
+        .item-text { flex: 1; overflow: hidden; }
+        .item-title { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-meta { font-size: 0.75rem; opacity: 0.5; margin-bottom: 2px; }
+
+        /* BOTTOM NAVIGATION */
+        nav { 
+            height: 70px; background: var(--nav); border-top: 1px solid #333;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0;
+        }
+        .nav-btn { 
+            display: flex; flex-direction: column; align-items: center; 
+            color: #888; font-size: 0.7rem; gap: 5px; cursor: pointer;
+        }
+        .nav-btn.active { color: var(--accent); }
+        .nav-icon { font-size: 1.4rem; }
+
+        /* UPLOAD BUTTON */
+        .upload-floating {
+            background: var(--accent); color: white; padding: 15px; 
+            border-radius: 12px; text-align: center; font-weight: bold;
+            margin-bottom: 20px;
+        }
+
         #error-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); display: none; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 10; text-align: center; 
+            background: rgba(0,0,0,0.9); display: none; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
 
-        /* Info & Controls */
-        .video-controls { margin-top: 15px; display: flex; gap: 10px; align-items: stretch; }
-        #video-titel-veld { 
-            flex: 1; font-size: 1.1em; font-weight: bold; padding: 12px; 
-            background: var(--card); border-radius: 8px; border-left: 5px solid var(--accent); 
+        @media (min-width: 900px) {
+            /* Desktop fix: laat alles naast elkaar zien zoals voorheen */
+            body { flex-direction: row; }
+            nav { width: 80px; height: 100vh; flex-direction: column; padding: 40px 0; }
+            .view { position: relative; display: flex !important; width: 33.33%; border-right: 1px solid #222; }
+            header { display: none; }
         }
-        
-        .skip-btn { 
-            background: var(--accent); color: white; border: none; padding: 0 20px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; 
-        }
-
-        /* Items indeling */
-        .lib-item, .v-item { 
-            padding: 10px; margin-bottom: 5px; background: #222; 
-            border-radius: 6px; cursor: pointer; font-size: 0.85em; 
-        }
-        .v-item { display: flex; align-items: center; gap: 10px; }
-        .v-item.active { background: #2a1a20; border-left: 4px solid var(--accent); color: var(--accent); }
-        .thumb { width: 80px; aspect-ratio: 16/9; border-radius: 4px; object-fit: cover; }
-
-        .btn-upload { 
-            background: var(--accent); color: white; padding: 12px; 
-            border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold; display: block; 
-        }
-
-        /* --- TELEFOON AANPASSINGEN (RESPONSIVE) --- */
-        @media (max-width: 900px) {
-            body { overflow-y: auto; height: auto; }
-            header { padding: 10px; }
-            .main-container { flex-direction: column; overflow: visible; }
-            
-            #sidebar, #playlist, #video-zone { 
-                width: auto; 
-                flex: none; 
-                border: none; 
-                overflow: visible; 
-            }
-
-            #video-zone { order: 1; padding: 10px; } /* Video bovenaan */
-            #playlist { order: 2; border-top: 1px solid #333; } /* Lijst eronder */
-            #sidebar { order: 3; border-top: 1px solid #333; } /* Bieb onderaan */
-
-            .video-controls { flex-direction: column; }
-            .skip-btn { padding: 15px; font-size: 1.2em; }
-            
-            .thumb { width: 60px; }
-        }
-
-        input[type="file"] { display: none; }
     </style>
 </head>
-<body onmousemove="resetCursorTimer()">
+<body>
 
 <header>
-    <div style="font-weight: 900; font-size: 1.2em;">K-POP <span style="color: var(--accent)">ARCHIVE</span></div>
-    <div id="status" style="opacity:0.5; font-size:0.7em;">Multi-Device Mode</div>
+    <h1>K-POP ARCHIVE</h1>
 </header>
 
-<div class="main-container">
-    <div id="sidebar">
-        <p style="font-size:0.7em; opacity:0.5; margin-bottom:10px; text-transform: uppercase;">Bibliotheek</p>
-        <div id="lib-lijst"></div>
-        <div style="margin-top:20px">
-            <label class="btn-upload"> + NIEUWE CSV <input type="file" id="csv-in" accept=".csv"></label>
+<div class="app-content">
+    <div id="view-lib" class="view active">
+        <label class="upload-floating"> + NIEUWE CSV UPLOADEN <input type="file" id="csv-in" accept=".csv" style="display:none"></label>
+        <div class="list-container" id="lib-lijst"></div>
+    </div>
+
+    <div id="view-player" class="view">
+        <div class="video-wrapper">
+            <div id="player"></div>
+            <div id="error-overlay">
+                <h3 style="color:var(--accent)">Geblokkeerd</h3>
+                <p style="font-size:0.8rem">We skippen deze video...</p>
+            </div>
         </div>
-        <div id="skipped-sectie" style="margin-top:20px;">
-            <p style="font-size:0.7em; opacity:0.5; text-transform: uppercase;">Gemist</p>
-            <div id="skipped-lijst"></div>
+        <div class="player-info">
+            <div id="video-titel-veld">Kies een nummer</div>
+            <button class="skip-btn" onclick="speelVideo(currentIndex + 1)">VOLGENDE VIDEO</button>
         </div>
     </div>
 
-    <div id="video-zone">
-        <div class="video-box">
-            <div id="player"></div>
-            <div id="error-overlay">
-                <h2 style="color: var(--error)">Oeps!</h2>
-                <p>Video wordt overgeslagen...</p>
-            </div>
-        </div>
-        <div class="video-controls">
-            <div id="video-titel-veld">Kies een groep</div>
-            <button class="skip-btn" onclick="speelVideo(currentIndex + 1)">VOLGENDE</button>
-        </div>
-    </div>
-    
-    <div id="playlist">
-        <p style="font-size:0.7em; opacity:0.5; margin-bottom:10px; text-transform: uppercase;">Afspeellijst</p>
-        <div id="v-lijst"></div>
+    <div id="view-list" class="view">
+        <div class="list-container" id="v-lijst"></div>
     </div>
 </div>
 
-<script>
-    let player;
-    let playlist = [];
-    let skippedVideos = [];
-    let currentIndex = -1;
-    let actieveGroep = "";
-    let cursorTimer;
-    let progressInterval;
+<nav id="bottom-nav">
+    <div class="nav-btn active" onclick="switchView('view-lib', this)">
+        <span class="nav-icon">🗂</span><span>Bibliotheek</span>
+    </div>
+    <div class="nav-btn" onclick="switchView('view-player', this)">
+        <span class="nav-icon">📺</span><span>Speler</span>
+    </div>
+    <div class="nav-btn" onclick="switchView('view-list', this)">
+        <span class="nav-icon">🎶</span><span>Lijst</span>
+    </div>
+</nav>
 
-    function resetCursorTimer() {
-        document.body.classList.remove('hide-cursor');
-        clearTimeout(cursorTimer);
-        cursorTimer = setTimeout(() => { document.body.classList.add('hide-cursor'); }, 3000);
+<script>
+    let player, playlist = [], currentIndex = -1, actieveGroep = "";
+
+    // View switcher
+    function switchView(viewId, btn) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     }
 
     const tag = document.createElement('script');
@@ -193,50 +163,16 @@
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
             events: { 
-                'onStateChange': onPlayerStateChange,
+                'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) speelVideo(currentIndex + 1); },
                 'onError': handlePlayerError 
             }
         });
         laadLib();
     }
 
-    function startProgressTracking() {
-        clearInterval(progressInterval);
-        progressInterval = setInterval(() => {
-            if (player && player.getPlayerState() === YT.PlayerState.PLAYING) saveProgress();
-        }, 5000);
-    }
-
-    function saveProgress() {
-        if (!actieveGroep || currentIndex === -1) return;
-        let p = JSON.parse(localStorage.getItem('kpop_pro_progress') || '{}');
-        p[actieveGroep] = { index: currentIndex, time: Math.floor(player.getCurrentTime()) };
-        localStorage.setItem('kpop_pro_progress', JSON.stringify(p));
-    }
-
-    function onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.ENDED) speelVideo(currentIndex + 1);
-        if (event.data === YT.PlayerState.PLAYING) startProgressTracking();
-        else clearInterval(progressInterval);
-    }
-
-    function handlePlayerError(e) {
-        const video = playlist[currentIndex];
-        if (video && !skippedVideos.find(v => v.Link === video.Link)) {
-            skippedVideos.push(video); renderSkipped();
-        }
+    function handlePlayerError() {
         document.getElementById('error-overlay').style.display = 'flex';
         setTimeout(() => { document.getElementById('error-overlay').style.display = 'none'; speelVideo(currentIndex + 1); }, 2000);
-    }
-
-    function renderSkipped() {
-        const div = document.getElementById('skipped-lijst'); div.innerHTML = '';
-        skippedVideos.forEach(v => {
-            const a = document.createElement('a'); a.className = 'lib-item';
-            a.href = v.Link; a.target = '_blank'; a.style.textDecoration = 'none'; a.style.color = 'var(--error)';
-            a.innerHTML = `<span>#${v.Nummer} ${v.Titel}</span>`;
-            div.appendChild(a);
-        });
     }
 
     document.getElementById('csv-in').addEventListener('change', function(e) {
@@ -246,7 +182,7 @@
             complete: function(res) {
                 const naam = file.name.replace('.csv', '');
                 const data = res.data.sort((a,b) => (parseInt(a.Nummer)||0) - (parseInt(b.Nummer)||0));
-                opslaan(naam, data); toonGroep(naam, data); e.target.value = '';
+                opslaan(naam, data); toonGroep(naam, data);
             }
         });
     });
@@ -260,11 +196,11 @@
         const l = JSON.parse(localStorage.getItem('kpop_archive_final') || '{}');
         const div = document.getElementById('lib-lijst'); div.innerHTML = '';
         Object.keys(l).forEach(n => {
-            const i = document.createElement('div');
-            i.className = `lib-item ${n === actieveGroep ? 'active' : ''}`;
-            i.innerHTML = `<span>${n}</span><span style="opacity:0.3" onclick="del(event,'${n}')">×</span>`;
-            i.onclick = () => toonGroep(n, l[n]);
-            div.appendChild(i);
+            const card = document.createElement('div');
+            card.className = `item-card ${n === actieveGroep ? 'active' : ''}`;
+            card.innerHTML = `<div class="item-text"><div class="item-title">${n}</div></div><span onclick="del(event,'${n}')">🗑</span>`;
+            card.onclick = () => toonGroep(n, l[n]);
+            div.appendChild(card);
         });
     }
 
@@ -272,20 +208,11 @@
         e.stopPropagation(); if(!confirm(`Verwijderen?`)) return;
         let l = JSON.parse(localStorage.getItem('kpop_archive_final') || '{}');
         delete l[n]; localStorage.setItem('kpop_archive_final', JSON.stringify(l));
-        let p = JSON.parse(localStorage.getItem('kpop_pro_progress') || '{}');
-        delete p[n]; localStorage.setItem('kpop_pro_progress', JSON.stringify(p));
-        if(actieveGroep === n) resetScherm(); laadLib();
-    }
-
-    function resetScherm() {
-        actieveGroep = ""; playlist = []; currentIndex = -1;
-        document.getElementById('v-lijst').innerHTML = "";
-        document.getElementById('video-titel-veld').innerText = "Laad een CSV...";
-        if(player && player.stopVideo) player.stopVideo();
+        laadLib();
     }
 
     function toonGroep(n, d) {
-        actieveGroep = n; playlist = d; tekenLijst(); laadLib();
+        actieveGroep = n; playlist = d; tekenLijst(); switchView('view-player', document.querySelectorAll('.nav-btn')[1]);
         let p = JSON.parse(localStorage.getItem('kpop_pro_progress') || '{}');
         let saved = p[n] || { index: 0, time: 0 };
         speelVideo(saved.index, saved.time);
@@ -295,12 +222,11 @@
         const l = document.getElementById('v-lijst'); l.innerHTML = '';
         playlist.forEach((v, i) => {
             const id = extractId(v.Link);
-            const d = document.createElement('div');
-            d.className = `v-item ${i === currentIndex ? 'active' : ''}`;
-            d.id = `v-${i}`;
-            d.innerHTML = `<img class="thumb" src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div style="flex:1;overflow:hidden"><div>#${v.Nummer}</div><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.Titel}</div></div>`;
-            d.onclick = () => speelVideo(i);
-            l.appendChild(d);
+            const card = document.createElement('div');
+            card.className = `item-card ${i === currentIndex ? 'active' : ''}`;
+            card.innerHTML = `<img class="item-thumb" src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div class="item-text"><div class="item-meta">#${v.Nummer}</div><div class="item-title">${v.Titel}</div></div>`;
+            card.onclick = () => speelVideo(i);
+            l.appendChild(card);
         });
     }
 
@@ -310,9 +236,13 @@
         document.getElementById('video-titel-veld').innerText = playlist[i].Titel;
         const id = extractId(playlist[i].Link);
         if(player && player.loadVideoById) player.loadVideoById({ videoId: id, startSeconds: startTime });
-        document.querySelectorAll('.v-item').forEach((el, idx) => { el.classList.toggle('active', idx === i); });
-        const active = document.getElementById(`v-${i}`);
-        if(active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        // Save progress
+        let p = JSON.parse(localStorage.getItem('kpop_pro_progress') || '{}');
+        p[actieveGroep] = { index: i, time: 0 };
+        localStorage.setItem('kpop_pro_progress', JSON.stringify(p));
+        
+        tekenLijst();
     }
 
     function extractId(url) {
